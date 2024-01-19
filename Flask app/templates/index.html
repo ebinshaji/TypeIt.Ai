@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text Sections</title>
+</head>
+<style>
+    #canvas{
+        margin: 60px;
+    }
+    
+    #container {
+      padding: 30px;
+      border: 1px solid #ccc;
+      user-select: none;
+    }
+
+    .item {
+      width:fit-content;
+      height: fit-content;
+      cursor: pointer;
+      user-select: none;
+      margin-left: -19px;
+      margin-top: 10px;
+      font-size: 20px;
+    }
+
+    #selection-box {
+      position: absolute;
+      border: 1px dashed #000;
+      background-color: rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 999;
+    }
+
+    .selected {
+      background-color: green;
+      border-color: #0077b6;
+    }
+</style>
+<body>
+    <h1>Text Sections</h1>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+
+    <div id="canvas">
+        <div id="container">
+            <form action="/delete_item" method="POST" id="delete-item-form">
+                {% set count_number = 50 %}
+                {% for section in sections %}
+                    <div style="display: inline-block; margin: 10px;">
+                        <input style="display: none;" type="hidden" name="item_id" value="{{ section['id'] }}">
+                        <input style="display: none;" type="checkbox" id="myCheckbox{{ section['id'] }}" name="selected_items[]" value="{{ section['id'] }}">
+                        <label class="item" id="itemSelection{{ section['id'] }}" for="myCheckbox{{ section['id'] }}">{{ section['items'][1] }}</label>
+                    </div>
+                    {% if loop.index > 0 and section['items'][1][-1] == '.' %}
+                    <span style="white-space: pre;">      </span>
+                    {% endif %}
+                {% endfor %}
+                <button  type="submit" name="delete_selected" id="delete-selected-button">Delete Selected Items</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add a div to display status or messages -->
+    <div id="status"></div>
+    
+    <!-- ... the rest of your HTML ... -->
+
+    
+    <script>
+        // Add an event listener for the Delete Selected Items button
+        $('#delete-selected-button').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '/delete_item',
+                 // Serialize the form data
+                success: function (data) {
+                    // Update the status div with a success message
+                    $('#status').html('<p>Items deleted successfully.</p>');
+                    // You can also update the UI here if needed.
+                },
+                error: function () {
+                    // Update the status div with an error message
+                    $('#status').html('<p>Error deleting items.</p>');
+                }
+            });
+        });
+    </script>
+    
+    <div id="save-status"></div>
+
+    <!-- Add a button to trigger the save operation -->
+    <button type="button" id="save-to-file-button">Save to File</button>
+    
+    <script>
+        // Add an event listener for the Save to File button
+        $('#save-to-file-button').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '/save_to_file',
+                success: function (data) {
+                    // Update the save-status div with a success message
+                    $('#save-status').html('<p>File saved successfully.</p>');
+                    // You can also update the UI here if needed.
+                },
+                error: function () {
+                    // Update the save-status div with an error message
+                    $('#save-status').html('<p>Error saving file.</p>');
+                }
+            });
+        });
+    </script>
+<!-- ... save deleted item... -->
+
+<h2>Deleted Item IDs:</h2>
+<form action="/save_to_file" method="POST">
+  <ul>
+      {% for deleted_id in deleted_item_ids %}
+          <li>{{ deleted_id }}</li>
+      {% endfor %}
+  </ul>
+</form>
+
+
+<!-- ... end save deleted item ... -->
+<script>
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const itemSelections = document.querySelectorAll('.item');
+
+    checkboxes.forEach((checkbox, index) => {
+      checkbox.addEventListener("change", function() {
+        if (checkbox.checked) {
+          itemSelections[index].style.backgroundColor = "lightgreen"; // Change the background color when checked
+        } else {
+          itemSelections[index].style.backgroundColor = ""; // Reset the background color when unchecked
+        }
+      });
+    });
+  </script>
+
+
+
+</body>
+</html>

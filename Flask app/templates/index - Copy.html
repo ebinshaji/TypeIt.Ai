@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text Sections</title>
+</head>
+<style>
+    #canvas{
+        margin: 60px;
+        padding: 40px;
+    }
+    #canvas_text{
+        background-color: transparent;
+        border-color: transparent;
+        margin-left: -8px;
+        margin-top: 10px;
+        font-size: 20px;
+    }
+</style>
+<body>
+    <h1>Text Sections</h1>
+
+<div id="canvas">
+        {% for section in sections %}
+            <div style="display: inline-block; margin: 0px; padding: 0px;">
+                <form method="POST" action="/delete_item">
+                    <input style="display: none;" type="hidden" name="item_id" value="{{ section['id'] }}">
+                    <button type="submit" id="canvas_text">{{ section['items'][1] }}</button>
+                </form>
+            </div>
+            
+        {% endfor %}
+    </div>
+
+<!-- ... save deleted item... -->
+
+<h2>Deleted Item IDs:</h2>
+<ul>
+    {% for deleted_id in deleted_item_ids %}
+        <li>{{ deleted_id }}</li>
+    {% endfor %}
+</ul>
+
+<form method="POST" action="/save_to_file">
+    <button type="submit">Save Deleted IDs to File</button>
+</form>
+
+<!-- ... end save deleted item ... -->
+
+</body>
+</html>

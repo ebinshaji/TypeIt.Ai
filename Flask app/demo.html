@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #container {
+      width: 300px;
+      border: 1px solid #ccc;
+      user-select: none;
+    }
+
+    .item {
+      width: 100px;
+      height: 50px;
+      border: 1px solid #000;
+      background-color: #f0f0f0;
+      margin: 5px;
+      display: inline-block;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #selection-box {
+      position: absolute;
+      border: 1px dashed #000;
+      background-color: rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 999;
+    }
+
+    .selected {
+      background-color: green;
+      border-color: #0077b6;
+    }
+  </style>
+</head>
+<body>
+    <div id="container">
+      <input style="display: none;" type="checkbox" id="myCheckbox1" name="myCheckbox" value="isChecked">
+      <label class="item" id="itemSelection1" for="myCheckbox1">Check this box 1</label>
+      
+      <input style="display: none;" type="checkbox" id="myCheckbox2" name="myCheckbox" value="isChecked">
+      <label class="item" id="itemSelection2" for="myCheckbox2">Check this box 2</label>
+      
+      <input style="display: none;" type="checkbox" id="myCheckbox3" name="myCheckbox" value="isChecked">
+      <label class="item" id="itemSelection3" for="myCheckbox3">Check this box 3</label>
+  
+      <!-- Add more items as needed -->
+      <div id="selection-box"></div>
+
+    </div>
+
+    <button onclick="getSelectedItems()">Get Selected Items</button>
+  
+    <script>
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      const itemSelections = document.querySelectorAll('.item');
+  
+      checkboxes.forEach((checkbox, index) => {
+        checkbox.addEventListener("change", function() {
+          if (checkbox.checked) {
+            itemSelections[index].style.backgroundColor = "lightgreen"; // Change the background color when checked
+          } else {
+            itemSelections[index].style.backgroundColor = ""; // Reset the background color when unchecked
+          }
+        });
+      });
+    </script>
+
+
+
+  <script>
+let isDragging = false;
+let startX, startY, endX, endY;
+
+document.getElementById('container').addEventListener('mousedown', (e) => {
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    endX = e.clientX;
+    endY = e.clientY;
+
+    // Calculate the selection box position and size
+    const selectionBox = document.getElementById('selection-box');
+    const left = Math.min(startX, endX);
+    const top = Math.min(startY, endY);
+    const width = Math.abs(endX - startX);
+    const height = Math.abs(endY - startY);
+
+    // Apply styles to the selection box
+    selectionBox.style.display = 'block';
+    selectionBox.style.left = left + 'px';
+    selectionBox.style.top = top + 'px';
+    selectionBox.style.width = width + 'px';
+    selectionBox.style.height = height + 'px';
+
+    // Select items within the selection box
+    selectItems(left, top, width, height);
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+
+  // Hide the selection box
+  const selectionBox = document.getElementById('selection-box');
+  selectionBox.style.display = 'none';
+});
+
+function selectItems(left, top, width, height) {
+  const container = document.getElementById('container');
+  const items = container.getElementsByClassName('item');
+
+  for (const item of items) {
+    const rect = item.getBoundingClientRect();
+    const itemLeft = rect.left;
+    const itemTop = rect.top;
+
+    // Check if the item is within the selection box
+    if (
+      itemLeft + rect.width >= left &&
+      itemLeft <= left + width &&
+      itemTop + rect.height >= top &&
+      itemTop <= top + height
+    ) {
+      item.classList.add('selected');
+    } else {
+      item.classList.remove('selected');
+    }
+  }
+
+
+ // Deselect all items when clicking on empty space
+ document.addEventListener('click', (e) => {
+      if (!isDragging && e.target.id !== 'container') {
+        clearSelection();
+      }
+    });
+    function clearSelection() {
+      const selectedItems = document.querySelectorAll('.selected');
+      for (const item of selectedItems) {
+        item.classList.remove('selected');
+      }
+    }
+
+}
+function getSelectedItems() {
+      const selectedItems = document.querySelectorAll('.selected');
+      const selectedItemsArray = Array.from(selectedItems).map((item) => item.textContent);
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      const checkedCheckboxes = [];
+
+      checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          checkedCheckboxes.push(checkbox);
+        }
+      });
+      
+      console.log("Selected Items:", selectedItemsArray, checkedCheckboxes);
+    }
+
+  </script>
+</body>
+</html>
